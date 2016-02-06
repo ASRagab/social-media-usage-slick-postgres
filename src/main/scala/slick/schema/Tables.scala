@@ -33,11 +33,9 @@ trait Tables {
 
   class Agency(_tableTag: Tag) extends Table[AgencyRow](_tableTag, "agency") {
     def * = (id, name) <>(AgencyRow.tupled, AgencyRow.unapply)
-
     def ? = (Rep.Some(id), name).shaped.<>({ r => import r._; _1.map(_ => AgencyRow.tupled((_1.get, _2))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
 
     val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-    
     val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(200, varying = true), O.Default(None))
   }
 
@@ -58,9 +56,7 @@ trait Tables {
     def * = (id, name) <>(PlatformRow.tupled, PlatformRow.unapply)
 
     def ? = (Rep.Some(id), name).shaped.<>({ r => import r._; _1.map(_ => PlatformRow.tupled((_1.get, _2))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
-
     val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-    
     val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(100, varying = true), O.Default(None))
   }
 
@@ -83,32 +79,22 @@ trait Tables {
   }
 
   class SocialMediaUsageSamples(_tableTag: Tag) extends Table[SocialMediaUsageSamplesRow](_tableTag, "social_media_usage_samples") {
-    def * = (id, agencyid, platformid, url, sampleDate, actions, createDate) <>(SocialMediaUsageSamplesRow.tupled, SocialMediaUsageSamplesRow.unapply)
 
+    def * = (id, agencyid, platformid, url, sampleDate, actions, createDate) <>(SocialMediaUsageSamplesRow.tupled, SocialMediaUsageSamplesRow.unapply)
     def ? = (Rep.Some(id), Rep.Some(agencyid), platformid, url, sampleDate, actions, createDate).shaped.<>({ r => import r._; _1.map(_ => SocialMediaUsageSamplesRow.tupled((_1.get, _2.get, _3, _4, _5, _6, _7))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
 
     val id: Rep[Int] = column[Int]("id", O.AutoInc)
-    
     val agencyid: Rep[Int] = column[Int]("agencyid")
-    
     val platformid: Rep[Option[Int]] = column[Option[Int]]("platformid", O.Default(None))
-    
     val url: Rep[Option[String]] = column[Option[String]]("url", O.Length(500, varying = true), O.Default(None))
-    
     val sampleDate: Rep[Option[java.sql.Date]] = column[Option[java.sql.Date]]("sample_date", O.Default(None))
-    
     val actions: Rep[Option[Int]] = column[Option[Int]]("actions", O.Default(None))
-    
     val createDate: Rep[Option[java.sql.Date]] = column[Option[java.sql.Date]]("create_date")
 
     val pk = primaryKey("social_media_usage_samples_pkey", (id, agencyid))
-
     lazy val agencyFk = foreignKey("social_media_usage_samples_agencyid_fkey", agencyid, Agency)(r => r.id, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.NoAction)
-    
     lazy val platformFk = foreignKey("social_media_usage_samples_platformid_fkey", platformid, Platform)(r => Rep.Some(r.id), onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.NoAction)
-
     val index1 = index("idx_agency_sample_dae", (agencyid, sampleDate))
-    
     val index2 = index("uq_agency_url_sample", (agencyid, url, sampleDate), unique = true)
   }
 
@@ -132,13 +118,9 @@ trait Tables {
     def * = (agency, platform, url, sampleDate, action) <>(StagingNycSocialMediaUsageRow.tupled, StagingNycSocialMediaUsageRow.unapply)
 
     val agency: Rep[Option[String]] = column[Option[String]]("agency", O.Length(200, varying = true), O.Default(None))
-    
     val platform: Rep[Option[String]] = column[Option[String]]("platform", O.Length(100, varying = true), O.Default(None))
-    
     val url: Rep[Option[String]] = column[Option[String]]("url", O.Length(500, varying = true), O.Default(None))
-    
     val sampleDate: Rep[Option[java.sql.Date]] = column[Option[java.sql.Date]]("sample_date", O.Default(None))
-    
     val action: Rep[Option[Int]] = column[Option[Int]]("action", O.Default(None))
   }
 
@@ -161,11 +143,8 @@ trait Tables {
     def * = (name, maxdate, maxactions, url) <>(ViewSmusMaxActionsOnDateRow.tupled, ViewSmusMaxActionsOnDateRow.unapply)
 
     val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(200, varying = true), O.Default(None))
-    
     val maxdate: Rep[Option[java.sql.Date]] = column[Option[java.sql.Date]]("maxdate", O.Default(None))
-    
     val maxactions: Rep[Option[Int]] = column[Option[Int]]("maxactions", O.Default(None))
-    
     val url: Rep[Option[String]] = column[Option[String]]("url", O.Length(500, varying = true), O.Default(None))
   }
 
