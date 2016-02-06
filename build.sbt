@@ -23,8 +23,8 @@ libraryDependencies ++= Seq(
 //val jdbcDriver = "org.postgresql.Driver"
 //  val slickDriver = "slick.driver.PostgresDriver"
 //  val pkg = "dao"
-//  val user = "codegen"
-//  val pass = "trustno1"
+//  val user = "user"
+//  val pass = "pass"
 //  toError(r.run("slick.codegen.SourceCodeGenerator", cp.files, Array(slickDriver, jdbcDriver, url, outputDir, pkg, user, pass), s.log))
 //  val fname = outputDir + "/dao/Tables.scala"
 //  Seq(file(fname))
