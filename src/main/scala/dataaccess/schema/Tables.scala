@@ -1,4 +1,4 @@
-package slick.schema
+package dataaccess.schema
 
 // AUTO-GENERATED Slick data model
 abstract class DatabaseAccessObject

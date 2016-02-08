@@ -1,4 +1,4 @@
-package slick.schema
+package dataaccess.schema
 
 import slick.codegen.SourceCodeGenerator
 import slick.driver.PostgresDriver

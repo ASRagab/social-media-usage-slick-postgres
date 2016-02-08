@@ -1,28 +1,26 @@
-package slick.dao
+package dataaccess.dao
 
 import java.sql.Date
-
-import slick.schema.DatabaseAccessObject
-import slick.schema.Tables._
+import dataaccess.schema.{Tables, DatabaseAccessObject}
+import Tables._
 
 /**
   * Created by ASRagab on 2/7/16.
   */
 package object Implicits {
-  implicit class DomainObjectOps[A](a: A)(implicit ev: DomainObject[A]) {
+  implicit class DomainObjectOps[A <: BaseDAO](a: A)(implicit ev: DomainObject[A]) {
     def name = ev.name(a)
     def id = ev.id(a)
   }
 }
 
-trait DomainObject[A] {
+trait BaseDAO
+trait DomainObject[A <: BaseDAO] {
   def id(a: A): Int
   def name(a: A): String
-
 }
 
-
-case class AgencyDAO(val id: Int, val name: String)
+case class AgencyDAO(val id: Int, val name: String) extends BaseDAO
 object AgencyDAO {
   implicit object AgencyDAODomainObject extends DomainObject[AgencyDAO] {
     def convertToRow(o: AgencyDAO) = AgencyRow(o.id, Some(o.name))
@@ -33,7 +31,7 @@ object AgencyDAO {
   }
 }
 
-case class PlatformDAO(val id: Int, val name: String)
+case class PlatformDAO(val id: Int, val name: String) extends BaseDAO
 object PlatformDAO {
   implicit object PlatformDAODomainObject extends DomainObject[PlatformDAO] {
     def convertToRow(o: PlatformDAO) = PlatformRow(o.id, Some(o.name))
@@ -44,7 +42,7 @@ object PlatformDAO {
   }
 }
 
-case class MediaUsageDAO(val id: Int, val agency: AgencyDAO, val platform: PlatformDAO, val actions: Int, val sampleDate: Date, val url: String)
+case class MediaUsageDAO(val id: Int, val agency: AgencyDAO, val platform: PlatformDAO, val actions: Int, val sampleDate: Date, val url: String) extends BaseDAO
 object MediaUsageDAO {
   implicit object MediaUsageDAODomainObject extends DomainObject[MediaUsageDAO] {
     def convertToRow(o: MediaUsageDAO) =
