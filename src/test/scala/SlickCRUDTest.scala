@@ -1,17 +1,16 @@
 
 import java.sql.Date
+
+import dataaccess.dao.AgencyDAO.AgencyDAODomainObject
+import dataaccess.dao.MediaUsageDAO.MediaUsageDAODomainObject
+import dataaccess.dao.PlatformDAO.PlatformDAODomainObject
 import dataaccess.dao._
-import dataaccess.schema.{DatabaseAccessObject, Tables}
-import org.scalatest.{Matchers, FunSpecLike}
-import AgencyDAO.AgencyDAODomainObject
-import PlatformDAO.PlatformDAODomainObject
-import MediaUsageDAO.MediaUsageDAODomainObject
-import Tables._
-import slick.lifted.AbstractTable
+import dataaccess.schema.Tables._
+import dataaccess.schema.DatabaseAccessObject
+import org.scalatest.{FunSpecLike, Matchers}
+import slick.driver.PostgresDriver.api._
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-import slick.driver.PostgresDriver.api._
 
 /**
   * Created by ASRagab on 2/6/16.
@@ -22,17 +21,17 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
   describe("Slick CRUD Tests") {
     describe("Agency CRUD Tests") {
       val agencies = Agency
+      implicit val rowMapper: AgencyRow => AgencyDAO = AgencyDAODomainObject.convertFromRow
 
       it("should select all agencies") {
-        val list = mapper[AgencyDAO, AgencyRow, TableQuery[Agency], Agency](agencies, AgencyDAODomainObject.convertFromRow)
+        val action = agencies.result
+        val list = resultMapper[AgencyDAO, AgencyRow, DBIO[Seq[AgencyRow]], Seq[AgencyRow]](action)
         list.length should equal(75)
       }
 
       it("should select one agency") {
         val action = agencies.filter(_.id === 1).result
-        val result = exec(action)
-
-        val list = result.map(AgencyDAODomainObject.convertFromRow)
+        val list = resultMapper[AgencyDAO, AgencyRow, DBIO[Seq[AgencyRow]], Seq[AgencyRow]](action)
         assert(list.length == 1)
         assert(list.head.id == 1)
         assert(list.head.name == "EDC")
@@ -41,19 +40,17 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
 
     describe("Platform CRUD Tests") {
       val platforms = Platform
+      implicit val rowMapper: PlatformRow => PlatformDAO = PlatformDAODomainObject.convertFromRow
 
       it("should select all platforms") {
-        val platformAction = platforms.result
-        val result = exec(platformAction)
-        val list = result.map(PlatformDAODomainObject.convertFromRow)
-
+        val action = platforms.result
+        val list = resultMapper[PlatformDAO, PlatformRow, DBIO[Seq[PlatformRow]], Seq[PlatformRow]](action)
         list.length should equal(12)
       }
 
       it("should select one platform") {
         val action = platforms.filter(_.id === 1).result
-        val result = exec(action)
-        val list = result.map(PlatformDAODomainObject.convertFromRow)
+        val list = resultMapper[PlatformDAO, PlatformRow, DBIO[Seq[PlatformRow]], Seq[PlatformRow]](action)
 
         assert(list.length == 1)
         assert(list.head.id == 1)
@@ -63,17 +60,18 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
 
     describe("ViewSmusMaxActionsOnDate CRUD Tests") {
       val maxMediaUsages = ViewSmusMaxActionsOnDate
+      implicit val rowMapper: ViewSmusMaxActionsOnDateRow => MediaUsageDAO = MediaUsageDAODomainObject.convertFromViewRow
 
       it("should get all max action media usages") {
-        val result = exec(maxMediaUsages.result)
-        val list = result.map(MediaUsageDAODomainObject.convertFromViewRow)
+        val action = maxMediaUsages.result
+        val list = resultMapper[MediaUsageDAO, ViewSmusMaxActionsOnDateRow, DBIO[Seq[ViewSmusMaxActionsOnDateRow]], Seq[ViewSmusMaxActionsOnDateRow]](action)
+
         list.length should equal(74)
       }
 
       it("should select one max action media usage") {
         val action = maxMediaUsages.filter(_.name === "Mayor's Office").result
-        val result = exec(action)
-        val list = result.map(MediaUsageDAODomainObject.convertFromViewRow)
+        val list = resultMapper[MediaUsageDAO, ViewSmusMaxActionsOnDateRow, DBIO[Seq[ViewSmusMaxActionsOnDateRow]], Seq[ViewSmusMaxActionsOnDateRow]](action)
 
         assert(list.length == 1)
         assert(list.head.agency != null)
@@ -84,20 +82,18 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
 
     describe("SocialMediaUsageSample CRUD Tests") {
       val mediaUsage = SocialMediaUsageSamples
+      implicit val rowMapper: SocialMediaUsageSamplesRow => MediaUsageDAO = MediaUsageDAODomainObject.convertFromRow
 
       it("should get all social media usages") {
+        val action = mediaUsage.result
+        val list = resultMapper[MediaUsageDAO, SocialMediaUsageSamplesRow, DBIO[Seq[SocialMediaUsageSamplesRow]], Seq[SocialMediaUsageSamplesRow]](action)
 
-        val mediaUsageAction = mediaUsage.result
-
-        val result = exec(mediaUsageAction)
-        val list = result.map(MediaUsageDAODomainObject.convertFromRow)
         list.length should equal(3777)
       }
 
       it("should get one social media usage") {
         val action = mediaUsage.filter(_.id === 1).result
-        val result = exec(action)
-        val list = result.map(MediaUsageDAODomainObject.convertFromRow)
+        val list = resultMapper[MediaUsageDAO, SocialMediaUsageSamplesRow, DBIO[Seq[SocialMediaUsageSamplesRow]], Seq[SocialMediaUsageSamplesRow]](action)
 
         list.length should equal(1)
         val usage = list.head
@@ -119,9 +115,10 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
       }
     }
   }
-  def mapper[A <: BaseDAO, B <: DatabaseAccessObject, T <: TableQuery[E], E <: AbstractTable[_]](query: T, f: B => A) : Seq[A] = {
-    val result = exec(query.result)
-    result.map(o => f(o.asInstanceOf[B]))
+
+  def resultMapper[A <: BaseDAO, B <: DatabaseAccessObject, S <: DBIO[R], R <: Seq[B]](action: S)(implicit rowMapper: B => A): Seq[A] = {
+    val result = exec(action)
+    result.map(rowMapper)
   }
 
   def exec[T](action: DBIO[T]): T = Await.result(db.run(action), 4 seconds)
