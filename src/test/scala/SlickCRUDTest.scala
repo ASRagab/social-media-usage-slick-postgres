@@ -25,13 +25,13 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
 
       it("should select all agencies") {
         val action = agencies.result
-        val list = resultMapper[AgencyDAO, AgencyRow, DBIO[Seq[AgencyRow]], Seq[AgencyRow]](action)
+        val list = resultMapper[AgencyDAO, AgencyRow, DBIO[Seq[AgencyRow]]](action)
         list.length should equal(75)
       }
 
       it("should select one agency") {
         val action = agencies.filter(_.id === 1).result
-        val list = resultMapper[AgencyDAO, AgencyRow, DBIO[Seq[AgencyRow]], Seq[AgencyRow]](action)
+        val list = resultMapper[AgencyDAO, AgencyRow, DBIO[Seq[AgencyRow]]](action)
         assert(list.length == 1)
         assert(list.head.id == 1)
         assert(list.head.name == "EDC")
@@ -44,13 +44,13 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
 
       it("should select all platforms") {
         val action = platforms.result
-        val list = resultMapper[PlatformDAO, PlatformRow, DBIO[Seq[PlatformRow]], Seq[PlatformRow]](action)
+        val list = resultMapper[PlatformDAO, PlatformRow, DBIO[Seq[PlatformRow]]](action)
         list.length should equal(12)
       }
 
       it("should select one platform") {
         val action = platforms.filter(_.id === 1).result
-        val list = resultMapper[PlatformDAO, PlatformRow, DBIO[Seq[PlatformRow]], Seq[PlatformRow]](action)
+        val list = resultMapper[PlatformDAO, PlatformRow, DBIO[Seq[PlatformRow]]](action)
 
         assert(list.length == 1)
         assert(list.head.id == 1)
@@ -64,14 +64,14 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
 
       it("should get all max action media usages") {
         val action = maxMediaUsages.result
-        val list = resultMapper[MediaUsageDAO, ViewSmusMaxActionsOnDateRow, DBIO[Seq[ViewSmusMaxActionsOnDateRow]], Seq[ViewSmusMaxActionsOnDateRow]](action)
+        val list = resultMapper[MediaUsageDAO, ViewSmusMaxActionsOnDateRow, DBIO[Seq[ViewSmusMaxActionsOnDateRow]]](action)
 
         list.length should equal(74)
       }
 
       it("should select one max action media usage") {
         val action = maxMediaUsages.filter(_.name === "Mayor's Office").result
-        val list = resultMapper[MediaUsageDAO, ViewSmusMaxActionsOnDateRow, DBIO[Seq[ViewSmusMaxActionsOnDateRow]], Seq[ViewSmusMaxActionsOnDateRow]](action)
+        val list = resultMapper[MediaUsageDAO, ViewSmusMaxActionsOnDateRow, DBIO[Seq[ViewSmusMaxActionsOnDateRow]]](action)
 
         assert(list.length == 1)
         assert(list.head.agency != null)
@@ -86,14 +86,14 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
 
       it("should get all social media usages") {
         val action = mediaUsage.result
-        val list = resultMapper[MediaUsageDAO, SocialMediaUsageSamplesRow, DBIO[Seq[SocialMediaUsageSamplesRow]], Seq[SocialMediaUsageSamplesRow]](action)
+        val list = resultMapper[MediaUsageDAO, SocialMediaUsageSamplesRow, DBIO[Seq[SocialMediaUsageSamplesRow]]](action)
 
         list.length should equal(3777)
       }
 
       it("should get one social media usage") {
         val action = mediaUsage.filter(_.id === 1).result
-        val list = resultMapper[MediaUsageDAO, SocialMediaUsageSamplesRow, DBIO[Seq[SocialMediaUsageSamplesRow]], Seq[SocialMediaUsageSamplesRow]](action)
+        val list = resultMapper[MediaUsageDAO, SocialMediaUsageSamplesRow, DBIO[Seq[SocialMediaUsageSamplesRow]]](action)
 
         list.length should equal(1)
         val usage = list.head
@@ -116,7 +116,7 @@ class SlickCRUDTest extends FunSpecLike with Matchers {
     }
   }
 
-  def resultMapper[A <: BaseDAO, B <: DatabaseAccessObject, S <: DBIO[R], R <: Seq[B]](action: S)(implicit rowMapper: B => A): Seq[A] = {
+  def resultMapper[A <: BaseDAO, B <: DatabaseAccessObject, S <: DBIO[Seq[B]]](action: S)(implicit rowMapper: B => A): Seq[A] = {
     val result = exec(action)
     result.map(rowMapper)
   }
