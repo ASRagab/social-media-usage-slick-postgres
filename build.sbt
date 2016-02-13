@@ -14,3 +14,4 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % "test"
 )
 
+scalacOptions ++= Seq("-feature", "-deprecation", "-unchecked", "-language:postfixOps")

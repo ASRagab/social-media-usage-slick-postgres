@@ -1,11 +1,7 @@
 
 import java.sql.Date
 
-import dataaccess.dto.AgencyDTO.AgencyDTOable
-import dataaccess.dto.MediaUsageDTO.MediaUsageDTOable
-import dataaccess.dto.PlatformDTO.PlatformDTOable
-import dataaccess.dto._
-import dataaccess.schema.Tables._
+import dataaccess.dto.DataTransferLayer
 import dataaccess.schema.DAO
 import org.scalatest.{FunSpecLike, Matchers}
 import slick.driver.PostgresDriver.api._
@@ -16,12 +12,18 @@ import scala.concurrent.duration._
   * Created by ASRagab on 2/6/16.
   */
 class SlickReadTest extends FunSpecLike with Matchers {
+
   private val db = Database.forConfig("social_media_usage_postgres")
+  private val dtl = new DataTransferLayer(slick.driver.PostgresDriver)
+  private val t = dtl.Tables
+
+  import dtl._
+  import t._
+  import MapperImplicits._
 
   describe("Slick Read Tests") {
     describe("Agency Read Tests") {
       val agencies = Agency
-      implicit val rowMapper: AgencyRow => AgencyDTO = AgencyDTOable.convertFromRow
 
       it("should select all agencies") {
         val action = agencies.result
@@ -44,7 +46,6 @@ class SlickReadTest extends FunSpecLike with Matchers {
 
     describe("Platform Read Tests") {
       val platforms = Platform
-      implicit val rowMapper: PlatformRow => PlatformDTO = PlatformDTOable.convertFromRow
 
       it("should select all platforms") {
         val action = platforms.result
@@ -64,7 +65,6 @@ class SlickReadTest extends FunSpecLike with Matchers {
 
     describe("ViewSmusMaxActionsOnDate Read Tests") {
       val maxMediaUsages = ViewSmusMaxActionsOnDate
-      implicit val rowMapper: ViewSmusMaxActionsOnDateRow => MediaUsageDTO = MediaUsageDTOable.convertFromViewRow
 
       it("should get all max action media usages") {
         val action = maxMediaUsages.result
@@ -86,7 +86,6 @@ class SlickReadTest extends FunSpecLike with Matchers {
 
     describe("SocialMediaUsageSample Read Tests") {
       val mediaUsage = SocialMediaUsageSamples
-      implicit val rowMapper: SocialMediaUsageSamplesRow => MediaUsageDTO = MediaUsageDTOable.convertFromRow
 
       it("should get all social media usages") {
         val action = mediaUsage.result

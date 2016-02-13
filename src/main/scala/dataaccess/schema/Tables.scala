@@ -1,11 +1,10 @@
 package dataaccess.schema
 
+import slick.driver.H2Driver
+import slick.lifted
+
 // AUTO-GENERATED Slick data model
 abstract class DAO
-
-object Tables extends {
-  val profile = slick.driver.PostgresDriver
-} with Tables
 
 trait Tables {
 
@@ -17,7 +16,8 @@ trait Tables {
   // NOTE: GetResult mappers for plain SQL are only generated for tables where Slick knows how to map the types of all columns.
   import slick.jdbc.{GetResult => GR}
 
-  lazy val schema: profile.SchemaDescription = Agency.schema ++ Platform.schema ++ SocialMediaUsageSamples.schema ++ StagingNycSocialMediaUsage.schema ++ ViewSmusMaxActionsOnDate.schema
+  lazy val schema = (Agency.schema ++ Platform.schema ++ SocialMediaUsageSamples.schema ++ StagingNycSocialMediaUsage.schema ++ ViewSmusMaxActionsOnDate.schema).create
+  lazy val schemaDrop = (Agency.schema ++ Platform.schema ++ SocialMediaUsageSamples.schema ++ StagingNycSocialMediaUsage.schema ++ ViewSmusMaxActionsOnDate.schema).drop
 
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
@@ -35,13 +35,14 @@ trait Tables {
 
   class Agency(_tableTag: Tag) extends Table[AgencyRow](_tableTag, "agency") {
     def * = (id, name) <>(AgencyRow.tupled, AgencyRow.unapply)
+
     def ? = (Rep.Some(id), name).shaped.<>({ r => import r._; _1.map(_ => AgencyRow.tupled((_1.get, _2))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
 
     val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
     val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(200, varying = true), O.Default(None))
   }
 
-  lazy val Agency = new TableQuery(tag => new Agency(tag))
+  lazy val Agency: lifted.TableQuery[Agency] = new TableQuery(tag => new Agency(tag))
 
   /** Entity class storing rows of table Platform
     *
@@ -58,6 +59,7 @@ trait Tables {
     def * = (id, name) <>(PlatformRow.tupled, PlatformRow.unapply)
 
     def ? = (Rep.Some(id), name).shaped.<>({ r => import r._; _1.map(_ => PlatformRow.tupled((_1.get, _2))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
+
     val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
     val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(100, varying = true), O.Default(None))
   }
@@ -93,7 +95,7 @@ trait Tables {
     val actions: Rep[Option[Int]] = column[Option[Int]]("actions", O.Default(None))
     val createDate: Rep[Option[java.sql.Date]] = column[Option[java.sql.Date]]("create_date")
 
-    val pk = primaryKey("social_media_usage_samples_pkey", (id, agencyid))
+    val pk = if(profile != H2Driver) primaryKey("social_media_usage_samples_pkey", (id, agencyid))
     lazy val agencyFk = foreignKey("social_media_usage_samples_agencyid_fkey", agencyid, Agency)(r => r.id, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.NoAction)
     lazy val platformFk = foreignKey("social_media_usage_samples_platformid_fkey", platformid, Platform)(r => Rep.Some(r.id), onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.NoAction)
     val index1 = index("idx_agency_sample_dae", (agencyid, sampleDate))
