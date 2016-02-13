@@ -1,7 +1,7 @@
 package dataaccess.schema
 
 // AUTO-GENERATED Slick data model
-abstract class DatabaseAccessObject
+abstract class DAO
 
 object Tables extends {
   val profile = slick.driver.PostgresDriver
@@ -26,7 +26,7 @@ trait Tables {
     *
     * @param id   Database column id SqlType(serial), AutoInc, PrimaryKey
     * @param name Database column name SqlType(varchar), Length(200,true), Default(None) */
-  case class AgencyRow(id: Int, name: Option[String] = None) extends DatabaseAccessObject
+  case class AgencyRow(id: Int, name: Option[String] = None) extends DAO
 
   implicit def GetResultAgencyRow(implicit e0: GR[Int], e1: GR[Option[String]]): GR[AgencyRow] = GR {
     prs => import prs._
@@ -47,7 +47,7 @@ trait Tables {
     *
     * @param id   Database column id SqlType(serial), AutoInc, PrimaryKey
     * @param name Database column name SqlType(varchar), Length(100,true), Default(None) */
-  case class PlatformRow(id: Int, name: Option[String] = None) extends DatabaseAccessObject
+  case class PlatformRow(id: Int, name: Option[String] = None) extends DAO
 
   implicit def GetResultPlatformRow(implicit e0: GR[Int], e1: GR[Option[String]]): GR[PlatformRow] = GR {
     prs => import prs._
@@ -73,7 +73,7 @@ trait Tables {
     * @param sampleDate Database column sample_date SqlType(date), Default(None)
     * @param actions    Database column actions SqlType(int4), Default(None)
     * @param createDate Database column create_date SqlType(date) */
-  case class SocialMediaUsageSamplesRow(id: Int, agencyid: Int, platformid: Option[Int] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, actions: Option[Int] = None, createDate: Option[java.sql.Date]) extends DatabaseAccessObject
+  case class SocialMediaUsageSamplesRow(id: Int, agencyid: Int, platformid: Option[Int] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, actions: Option[Int] = None, createDate: Option[java.sql.Date]) extends DAO
 
   implicit def GetResultSocialMediaUsageSamplesRow(implicit e0: GR[Int], e1: GR[Option[Int]], e2: GR[Option[String]], e3: GR[Option[java.sql.Date]]): GR[SocialMediaUsageSamplesRow] = GR {
     prs => import prs._
@@ -109,7 +109,7 @@ trait Tables {
     * @param url        Database column url SqlType(varchar), Length(500,true), Default(None)
     * @param sampleDate Database column sample_date SqlType(date), Default(None)
     * @param action     Database column action SqlType(int4), Default(None) */
-  case class StagingNycSocialMediaUsageRow(agency: Option[String] = None, platform: Option[String] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, action: Option[Int] = None) extends DatabaseAccessObject
+  case class StagingNycSocialMediaUsageRow(agency: Option[String] = None, platform: Option[String] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, action: Option[Int] = None) extends DAO
 
   implicit def GetResultStagingNycSocialMediaUsageRow(implicit e0: GR[Option[String]], e1: GR[Option[java.sql.Date]], e2: GR[Option[Int]]): GR[StagingNycSocialMediaUsageRow] = GR {
     prs => import prs._
@@ -134,7 +134,7 @@ trait Tables {
     * @param maxdate    Database column maxdate SqlType(date), Default(None)
     * @param maxactions Database column maxactions SqlType(int4), Default(None)
     * @param url        Database column url SqlType(varchar), Length(500,true), Default(None) */
-  case class ViewSmusMaxActionsOnDateRow(name: Option[String] = None, maxdate: Option[java.sql.Date] = None, maxactions: Option[Int] = None, url: Option[String] = None) extends DatabaseAccessObject
+  case class ViewSmusMaxActionsOnDateRow(name: Option[String] = None, maxdate: Option[java.sql.Date] = None, maxactions: Option[Int] = None, url: Option[String] = None) extends DAO
 
   implicit def GetResultViewSmusMaxActionsOnDateRow(implicit e0: GR[Option[String]], e1: GR[Option[java.sql.Date]], e2: GR[Option[Int]]): GR[ViewSmusMaxActionsOnDateRow] = GR {
     prs => import prs._
