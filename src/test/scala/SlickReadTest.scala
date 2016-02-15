@@ -2,7 +2,6 @@
 import java.sql.Date
 
 import dataaccess.dto.DataTransferLayer
-import dataaccess.schema.DAO
 import org.scalatest.{FunSpecLike, Matchers}
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.Await
@@ -27,7 +26,7 @@ class SlickReadTest extends FunSpecLike with Matchers {
 
       it("should select all agencies") {
         val action = agencies.result
-        val list = resultMapper[AgencyDTO, AgencyRow, DBIO[Seq[AgencyRow]]](action)
+        val list = resultMapper[AgencyDTO, AgencyRow](action)
         list.length should equal(75)
       }
 
@@ -37,7 +36,7 @@ class SlickReadTest extends FunSpecLike with Matchers {
         } yield agency
 
         val action = query.result
-        val list = resultMapper[AgencyDTO, AgencyRow, DBIO[Seq[AgencyRow]]](action)
+        val list = resultMapper[AgencyDTO, AgencyRow](action)
         assert(list.length == 1)
         assert(list.head.id == 1)
         assert(list.head.name == "EDC")
@@ -49,13 +48,13 @@ class SlickReadTest extends FunSpecLike with Matchers {
 
       it("should select all platforms") {
         val action = platforms.result
-        val list = resultMapper[PlatformDTO, PlatformRow, DBIO[Seq[PlatformRow]]](action)
+        val list = resultMapper[PlatformDTO, PlatformRow](action)
         list.length should equal(12)
       }
 
       it("should select one platform") {
         val action = platforms.filter(_.id === 1).result
-        val list = resultMapper[PlatformDTO, PlatformRow, DBIO[Seq[PlatformRow]]](action)
+        val list = resultMapper[PlatformDTO, PlatformRow](action)
 
         assert(list.length == 1)
         assert(list.head.id == 1)
@@ -68,14 +67,14 @@ class SlickReadTest extends FunSpecLike with Matchers {
 
       it("should get all max action media usages") {
         val action = maxMediaUsages.result
-        val list = resultMapper[MediaUsageDTO, ViewSmusMaxActionsOnDateRow, DBIO[Seq[ViewSmusMaxActionsOnDateRow]]](action)
+        val list = resultMapper[MediaUsageDTO, ViewSmusMaxActionsOnDateRow](action)
 
         list.length should equal(74)
       }
 
       it("should select one max action media usage") {
         val action = maxMediaUsages.filter(_.name === "Mayor's Office").result
-        val list = resultMapper[MediaUsageDTO, ViewSmusMaxActionsOnDateRow, DBIO[Seq[ViewSmusMaxActionsOnDateRow]]](action)
+        val list = resultMapper[MediaUsageDTO, ViewSmusMaxActionsOnDateRow](action)
 
         assert(list.length == 1)
         assert(list.head.agency != null)
@@ -89,14 +88,14 @@ class SlickReadTest extends FunSpecLike with Matchers {
 
       it("should get all social media usages") {
         val action = mediaUsage.result
-        val list = resultMapper[MediaUsageDTO, SocialMediaUsageSamplesRow, DBIO[Seq[SocialMediaUsageSamplesRow]]](action)
+        val list = resultMapper[MediaUsageDTO, SocialMediaUsageSamplesRow](action)
 
         list.length should equal(3777)
       }
 
       it("should get one social media usage") {
         val action = mediaUsage.filter(_.id === 1).result
-        val list = resultMapper[MediaUsageDTO, SocialMediaUsageSamplesRow, DBIO[Seq[SocialMediaUsageSamplesRow]]](action)
+        val list = resultMapper[MediaUsageDTO, SocialMediaUsageSamplesRow](action)
 
         list.length should equal(1)
         val usage = list.head
@@ -119,7 +118,7 @@ class SlickReadTest extends FunSpecLike with Matchers {
     }
   }
 
-  def resultMapper[A <: BaseDTO, B <: DAO, S <: DBIO[Seq[B]]](action: S)(implicit rowMapper: B => A): Seq[A] = {
+  def resultMapper[A, B](action: DBIO[Seq[B]])(implicit rowMapper: B => A): Seq[A] = {
     val result = exec(action)
     result.map(rowMapper)
   }

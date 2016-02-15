@@ -11,7 +11,7 @@ import slick.driver.H2Driver.api._
 class SlickCRUDTest extends FunSpecLike {
 
   private val dtl = new DataTransferLayer(slick.driver.H2Driver)
-  private val t = dtl.Tables;
+  private val t = dtl.Tables
   private val db = Database.forConfig("social_media_usage_h2")
 
   import dtl._
@@ -33,7 +33,7 @@ class SlickCRUDTest extends FunSpecLike {
     }
   }
 
-  def dtoMapper[A <: BaseDTO, B <: DAO, S <: DBIO[Seq[B]]](action: S)(implicit rowMapper: B => A): Seq[A] = {
+  def dtoMapper[A, B](action: DBIO[Seq[B]])(implicit rowMapper: B => A): Seq[A] = {
     val result = exec(action)
     result.map(rowMapper)
   }
