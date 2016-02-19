@@ -1,25 +1,32 @@
 
 import java.sql.Date
-
 import dataaccess.dto.DataTransferLayer
 import org.scalatest.{FunSpecLike, Matchers}
 import slick.driver.PostgresDriver.api._
+import slick.relational.CompiledMapping
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
 /**
   * Created by ASRagab on 2/6/16.
   */
+case class chooseDBConfig(useH2: Boolean) {
+  def getConfig() = if(useH2) ("social_media_usage_h2", slick.driver.H2Driver) else ("social_media_usage_postgres", slick.driver.PostgresDriver)
+}
 class SlickReadTest extends FunSpecLike with Matchers {
 
-  private val db = Database.forConfig("social_media_usage_postgres")
-  private val dtl = new DataTransferLayer(slick.driver.PostgresDriver)
+  val useH2 = false;
+  val (dbConfig, driver) = chooseDBConfig(useH2).getConfig
+
+  private val db = Database.forConfig(dbConfig)
+  private val dtl = new DataTransferLayer(driver)
   private val t = dtl.Tables
 
   import dtl._
   import t._
   import MapperImplicits._
 
+  if(useH2) exec(schema)
   describe("Slick Read Tests") {
     describe("Agency Read Tests") {
       val agencies = Agency
@@ -31,6 +38,11 @@ class SlickReadTest extends FunSpecLike with Matchers {
       }
 
       it("should select one agency") {
+        def byName(name: Rep[String]) = {
+          val q = agencies.filter(a => a.name like name).take(2)
+          Compiled(q)
+        }
+
         val query = for {
           agency <- agencies if agency.id === 1
         } yield agency
@@ -54,6 +66,8 @@ class SlickReadTest extends FunSpecLike with Matchers {
 
       it("should select one platform") {
         val action = platforms.filter(_.id === 1).result
+
+
         val list = resultMapper[PlatformDTO, PlatformRow](action)
 
         assert(list.length == 1)

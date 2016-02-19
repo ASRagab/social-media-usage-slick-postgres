@@ -1,7 +1,4 @@
 import dataaccess.dto._
-import dataaccess.schema.DAO
-import slick.lifted.AbstractTable
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -26,7 +23,7 @@ class SlickCRUDTest extends FunSpecLike {
       describe("Agency Insert Test") {
         it("should insert some rows") {
           val rows: Seq[AgencyRow] = daoMapper(Seq(AgencyDTO(101, "Dept. of Ballers"), AgencyDTO(102, "Sanitation Now, Sanitation Forever"), AgencyDTO(103, "Shimmer")))
-          val action = (agencies ++= rows)
+          val action = agencies ++= rows
           exec(action)
         }
       }
