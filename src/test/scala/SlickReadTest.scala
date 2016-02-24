@@ -1,9 +1,6 @@
-
 import java.sql.Date
 import dataaccess.dto.DataTransferLayer
 import org.scalatest.{FunSpecLike, Matchers}
-import slick.driver.PostgresDriver.api._
-import slick.relational.CompiledMapping
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -11,12 +8,15 @@ import scala.concurrent.duration._
   * Created by ASRagab on 2/6/16.
   */
 case class chooseDBConfig(useH2: Boolean) {
-  def getConfig() = if(useH2) ("social_media_usage_h2", slick.driver.H2Driver) else ("social_media_usage_postgres", slick.driver.PostgresDriver)
+  def getConfig() = if (useH2) ("social_media_usage_h2", slick.driver.H2Driver) else ("social_media_usage_postgres", slick.driver.PostgresDriver)
 }
+
 class SlickReadTest extends FunSpecLike with Matchers {
 
   val useH2 = false;
   val (dbConfig, driver) = chooseDBConfig(useH2).getConfig
+
+  import driver.api._
 
   private val db = Database.forConfig(dbConfig)
   private val dtl = new DataTransferLayer(driver)
@@ -26,7 +26,7 @@ class SlickReadTest extends FunSpecLike with Matchers {
   import t._
   import MapperImplicits._
 
-  if(useH2) exec(schema)
+  if (useH2) exec(schema)
   describe("Slick Read Tests") {
     describe("Agency Read Tests") {
       val agencies = Agency
@@ -130,6 +130,27 @@ class SlickReadTest extends FunSpecLike with Matchers {
         usage.url shouldNot be(null)
       }
     }
+
+    describe("More complex queries") {
+      //      val mediaUsage = SocialMediaUsageSamples
+      //      val staging = StagingNycSocialMediaUsage
+      //      val agencies = Agency
+      //      val platform = Platform
+      //      it("should run") {
+      //
+      ////        val q = for {
+      ////          usageSample <- mediaUsage if usageSample.sampleDate === staging.map(_.sampleDate).max
+      ////        } yield usageSample
+      //
+      //        val q = mediaUsage join staging on {
+      //          case (usage, row) => usage.sampleDate === staging.map(_.sampleDate).max
+      //        }
+      //
+      //        val action = q.distinct.result
+      //        val results = exec(action)
+      //        results.size should be > 10
+      //      }
+    }
   }
 
   def resultMapper[A, B](action: DBIO[Seq[B]])(implicit rowMapper: B => A): Seq[A] = {
@@ -137,5 +158,5 @@ class SlickReadTest extends FunSpecLike with Matchers {
     result.map(rowMapper)
   }
 
-  def exec[T](action: DBIO[T]): T = Await.result(db.run(action), 4 seconds)
+  def exec[T](action: DBIO[T]): T = Await.result(db.run(action), 30 seconds)
 }

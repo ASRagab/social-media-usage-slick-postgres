@@ -13,9 +13,6 @@ import scala.concurrent.duration._
   * Created by ASRagab on 2/6/16.
   */
 object CreateSchema extends App {
-
-  override def main(args: Array[String]) {
-    // fetch data model
     val db = Database.forConfig("social_media_usage_postgres")
     val tablesAndViews = MTable.getTables(None, None, None, Some(Seq("TABLE", "VIEW")))
     val modelAction = PostgresDriver.createModel(Some(tablesAndViews))
@@ -28,6 +25,4 @@ object CreateSchema extends App {
 
     Await.ready(
       codegenFuture.map(_.writeToFile("slick.driver.PostgresDriver", path, "dal", "Tables", "Tables.scala")), 20 seconds)
-  }
-
 }
