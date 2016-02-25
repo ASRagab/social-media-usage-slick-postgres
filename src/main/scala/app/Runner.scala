@@ -1,25 +1,18 @@
 package app
 
-import service.AgencyDataService
+import service.{PlatformRepository, AgencyRepository}
 
 /**
   * Created by ASRagab on 2/23/16.
   */
 object Runner extends App {
 
-  val AgencyDataService = new AgencyDataService
+  val agency = new AgencyRepository
+  val platform = new PlatformRepository
 
-  val agencies = AgencyDataService.getAll
-  agencies.get foreach {
-    case x: AgencyDataService.dto => println(x.name)
-    case _ => println("Nothing found")
-  }
+  val agencyRepo = agency.repository
+  agencyRepo.getAll.foreach(println)
 
-
-  val agency = AgencyDataService.getByID(10)
-  agency foreach {
-    case x: AgencyDataService.dto => println(x.name)
-    case _ => println("Agency not found")
-  }
-
+  val platformRepo = platform.repository
+  platformRepo.getAll.foreach(println)
 }

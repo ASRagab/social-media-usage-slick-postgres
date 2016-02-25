@@ -1,17 +1,25 @@
 package dataaccess.schema
 
 import slick.driver.H2Driver
-import slick.lifted
 
 // AUTO-GENERATED Slick data model
-abstract class DAO
-
+trait BaseDAO
 trait Tables {
 
   val profile: slick.driver.JdbcProfile
 
   import profile.api._
   import slick.model.ForeignKeyAction
+
+  trait DAO extends BaseDAO {
+    val id: Int
+    val name: Option[String]
+  }
+
+  trait GenericDataTable[T <: DAO] extends Table[T] {
+    def id: Rep[Int]
+    def name: Rep[Option[String]]
+  }
 
   // NOTE: GetResult mappers for plain SQL are only generated for tables where Slick knows how to map the types of all columns.
   import slick.jdbc.{GetResult => GR}
@@ -33,7 +41,7 @@ trait Tables {
       AgencyRow.tupled((<<[Int], <<?[String]))
   }
 
-  class Agency(_tableTag: Tag) extends Table[AgencyRow](_tableTag, "agency") {
+  class Agency(_tableTag: Tag) extends Table[AgencyRow](_tableTag, "agency") with GenericDataTable[AgencyRow] {
     def * = (id, name) <>(AgencyRow.tupled, AgencyRow.unapply)
 
     def ? = (Rep.Some(id), name).shaped.<>({ r => import r._; _1.map(_ => AgencyRow.tupled((_1.get, _2))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
@@ -42,7 +50,7 @@ trait Tables {
     val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(200, varying = true), O.Default(None))
   }
 
-  lazy val Agency: lifted.TableQuery[Agency] = new TableQuery(tag => new Agency(tag))
+  lazy val Agency: slick.lifted.TableQuery[Agency] = new TableQuery(tag => new Agency(tag))
 
   /** Entity class storing rows of table Platform
     *
@@ -55,7 +63,7 @@ trait Tables {
       PlatformRow.tupled((<<[Int], <<?[String]))
   }
 
-  class Platform(_tableTag: Tag) extends Table[PlatformRow](_tableTag, "platform") {
+  class Platform(_tableTag: Tag) extends Table[PlatformRow](_tableTag, "platform") with GenericDataTable[PlatformRow] {
     def * = (id, name) <>(PlatformRow.tupled, PlatformRow.unapply)
 
     def ? = (Rep.Some(id), name).shaped.<>({ r => import r._; _1.map(_ => PlatformRow.tupled((_1.get, _2))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
@@ -75,7 +83,7 @@ trait Tables {
     * @param sampleDate Database column sample_date SqlType(date), Default(None)
     * @param actions    Database column actions SqlType(int4), Default(None)
     * @param createDate Database column create_date SqlType(date) */
-  case class SocialMediaUsageSamplesRow(id: Int, agencyid: Int, platformid: Option[Int] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, actions: Option[Int] = None, createDate: Option[java.sql.Date]) extends DAO
+  case class SocialMediaUsageSamplesRow(id: Int, agencyid: Int, platformid: Option[Int] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, actions: Option[Int] = None, createDate: Option[java.sql.Date]) extends BaseDAO
 
   implicit def GetResultSocialMediaUsageSamplesRow(implicit e0: GR[Int], e1: GR[Option[Int]], e2: GR[Option[String]], e3: GR[Option[java.sql.Date]]): GR[SocialMediaUsageSamplesRow] = GR {
     prs => import prs._
@@ -111,7 +119,7 @@ trait Tables {
     * @param url        Database column url SqlType(varchar), Length(500,true), Default(None)
     * @param sampleDate Database column sample_date SqlType(date), Default(None)
     * @param action     Database column action SqlType(int4), Default(None) */
-  case class StagingNycSocialMediaUsageRow(agency: Option[String] = None, platform: Option[String] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, action: Option[Int] = None) extends DAO
+  case class StagingNycSocialMediaUsageRow(agency: Option[String] = None, platform: Option[String] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, action: Option[Int] = None) extends BaseDAO
 
   implicit def GetResultStagingNycSocialMediaUsageRow(implicit e0: GR[Option[String]], e1: GR[Option[java.sql.Date]], e2: GR[Option[Int]]): GR[StagingNycSocialMediaUsageRow] = GR {
     prs => import prs._
@@ -136,7 +144,7 @@ trait Tables {
     * @param maxdate    Database column maxdate SqlType(date), Default(None)
     * @param maxactions Database column maxactions SqlType(int4), Default(None)
     * @param url        Database column url SqlType(varchar), Length(500,true), Default(None) */
-  case class ViewSmusMaxActionsOnDateRow(name: Option[String] = None, maxdate: Option[java.sql.Date] = None, maxactions: Option[Int] = None, url: Option[String] = None) extends DAO
+  case class ViewSmusMaxActionsOnDateRow(name: Option[String] = None, maxdate: Option[java.sql.Date] = None, maxactions: Option[Int] = None, url: Option[String] = None) extends BaseDAO
 
   implicit def GetResultViewSmusMaxActionsOnDateRow(implicit e0: GR[Option[String]], e1: GR[Option[java.sql.Date]], e2: GR[Option[Int]]): GR[ViewSmusMaxActionsOnDateRow] = GR {
     prs => import prs._

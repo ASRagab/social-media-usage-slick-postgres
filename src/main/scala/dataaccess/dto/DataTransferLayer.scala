@@ -3,7 +3,7 @@ package dataaccess.dto
 import java.sql.Date
 import slick.driver.JdbcProfile
 
-sealed trait BaseDTO
+trait BaseDTO
 
 class DataTransferLayer(val driver: JdbcProfile) {
 
@@ -37,8 +37,7 @@ class DataTransferLayer(val driver: JdbcProfile) {
     def name(a: A): String
   }
 
-  case class AgencyDTO(val id: Int, val name: String) extends BaseDTO
-
+  case class AgencyDTO(id: Int, name: String) extends BaseDTO
   object AgencyDTO {
 
     implicit object AgencyDTOable extends DTOable[AgencyDTO] {
@@ -81,6 +80,5 @@ class DataTransferLayer(val driver: JdbcProfile) {
       override def name(a: MediaUsageDTO) = ""
     }
   }
-
 }
 
