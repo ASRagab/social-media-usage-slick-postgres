@@ -1,32 +1,31 @@
 import java.sql.Date
-import dataaccess.dto.DataTransferLayer
-import org.scalatest.{FunSpecLike, Matchers}
+
+import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
+import service.RepositoryDBConfig
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
 /**
   * Created by ASRagab on 2/6/16.
   */
-case class chooseDBConfig(useH2: Boolean) {
-  def getConfig() = if (useH2) ("social_media_usage_h2", slick.driver.H2Driver) else ("social_media_usage_postgres", slick.driver.PostgresDriver)
-}
 
-class SlickReadTest extends FunSpecLike with Matchers {
+class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig with BeforeAndAfterAll {
 
-  val useH2 = false;
-  val (dbConfig, driver) = chooseDBConfig(useH2).getConfig
-
+  override def useH2 = false
   import driver.api._
-
-  private val db = Database.forConfig(dbConfig)
-  private val dtl = new DataTransferLayer(driver)
-  private val t = dtl.Tables
-
   import dtl._
   import t._
   import MapperImplicits._
 
-  if (useH2) exec(schema)
+  override def beforeAll = {
+    if(useH2) exec(schema)
+  }
+
+  override def afterAll = {
+    if(useH2) exec(schemaDrop)
+  }
+
   describe("Slick Read Tests") {
     describe("Agency Read Tests") {
       val agencies = Agency

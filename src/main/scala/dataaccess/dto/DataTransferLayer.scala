@@ -49,7 +49,7 @@ class DataTransferLayer(val driver: JdbcProfile) {
     }
   }
 
-  case class PlatformDTO(val id: Int, val name: String) extends BaseDTO
+  case class PlatformDTO(id: Int, name: String) extends BaseDTO
 
   object PlatformDTO {
 
@@ -62,7 +62,7 @@ class DataTransferLayer(val driver: JdbcProfile) {
     }
   }
 
-  case class MediaUsageDTO(val id: Int, val agency: AgencyDTO, val platform: PlatformDTO, val actions: Int, val sampleDate: Date, val url: String) extends BaseDTO
+  case class MediaUsageDTO(id: Int, agency: AgencyDTO, platform: PlatformDTO, actions: Int, sampleDate: Date, url: String) extends BaseDTO
 
   object MediaUsageDTO {
 

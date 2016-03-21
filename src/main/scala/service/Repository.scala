@@ -4,18 +4,24 @@ import dataaccess.dto.{BaseDTO, DataTransferLayer}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-case class chooseDBConfig(useH2: Boolean) {
-  val getConfig = if (useH2) ("social_media_usage_h2", slick.driver.H2Driver) else ("social_media_usage_postgres", slick.driver.PostgresDriver)
-}
+trait RepositoryDBConfig {
+  def useH2: Boolean = false
 
-trait BaseRepository {
-  val (dbConfig, driver) = chooseDBConfig(useH2 = false).getConfig
+  lazy val (config, driver) = {
+    if (useH2)
+      ("social_media_usage_h2", slick.driver.H2Driver)
+    else
+      ("social_media_usage_postgres", slick.driver.PostgresDriver) }
 
   import driver.api._
 
   protected val dtl = new DataTransferLayer(driver)
-  protected val db = Database.forConfig(dbConfig)
+  protected val db = Database.forConfig(config)
   protected val t = dtl.Tables
+}
+
+trait BaseRepository extends RepositoryDBConfig {
+  import driver.api._
 
   def exec[T](action: DBIO[T]): T = Await.result(db.run(action), 30 seconds)
 

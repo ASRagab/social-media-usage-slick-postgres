@@ -1,24 +1,27 @@
-import dataaccess.dto._
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import org.scalatest.{BeforeAndAfterAll, FunSpecLike}
+import service.RepositoryDBConfig
 
-import org.scalatest.FunSpecLike
-import slick.driver.H2Driver.api._
+class SlickCRUDTest extends FunSpecLike with RepositoryDBConfig with BeforeAndAfterAll {
 
-class SlickCRUDTest extends FunSpecLike {
-
-  private val dtl = new DataTransferLayer(slick.driver.H2Driver)
-  private val t = dtl.Tables
-  private val db = Database.forConfig("social_media_usage_h2")
-
+  override def useH2 = true
+  import driver.api._
   import dtl._
   import t._
   import MapperImplicits._
 
+  override def beforeAll = {
+    if(useH2) exec(schema)
+  }
+
+  override def afterAll = {
+    if(useH2) exec(schemaDrop)
+  }
+
   describe("Slick CRUD Test") {
     describe("Agency CRUD Tests") {
       val agencies = Agency
-      exec(schema)
 
       describe("Agency Insert Test") {
         it("should insert some rows") {
