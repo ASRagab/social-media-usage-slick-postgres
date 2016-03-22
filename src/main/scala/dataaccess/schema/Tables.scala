@@ -12,13 +12,13 @@ trait Tables {
   import slick.model.ForeignKeyAction
 
   trait DAO extends BaseDAO {
-    val id: Int
-    val name: Option[String]
+    def id: Int = 0
+    def name: Option[String] = None
   }
 
   trait GenericDataTable[T <: DAO] extends Table[T] {
-    def id: Rep[Int]
-    def name: Rep[Option[String]]
+    def id: Rep[Int] = 0
+    def name: Rep[Option[String]] = None
   }
 
   // NOTE: GetResult mappers for plain SQL are only generated for tables where Slick knows how to map the types of all columns.
@@ -34,7 +34,7 @@ trait Tables {
     *
     * @param id   Database column id SqlType(serial), AutoInc, PrimaryKey
     * @param name Database column name SqlType(varchar), Length(200,true), Default(None) */
-  case class AgencyRow(id: Int, name: Option[String] = None) extends DAO
+  case class AgencyRow(override val id: Int, override val name: Option[String] = None) extends DAO
 
   implicit def GetResultAgencyRow(implicit e0: GR[Int], e1: GR[Option[String]]): GR[AgencyRow] = GR {
     prs => import prs._
@@ -46,8 +46,8 @@ trait Tables {
 
     def ? = (Rep.Some(id), name).shaped.<>({ r => import r._; _1.map(_ => AgencyRow.tupled((_1.get, _2))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
 
-    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-    val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(200, varying = true), O.Default(None))
+    override val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    override val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(200, varying = true), O.Default(None))
   }
 
   lazy val Agency: slick.lifted.TableQuery[Agency] = new TableQuery(tag => new Agency(tag))
@@ -56,7 +56,7 @@ trait Tables {
     *
     * @param id   Database column id SqlType(serial), AutoInc, PrimaryKey
     * @param name Database column name SqlType(varchar), Length(100,true), Default(None) */
-  case class PlatformRow(id: Int, name: Option[String] = None) extends DAO
+  case class PlatformRow(override val id: Int, override val name: Option[String] = None) extends DAO
 
   implicit def GetResultPlatformRow(implicit e0: GR[Int], e1: GR[Option[String]]): GR[PlatformRow] = GR {
     prs => import prs._
@@ -68,8 +68,8 @@ trait Tables {
 
     def ? = (Rep.Some(id), name).shaped.<>({ r => import r._; _1.map(_ => PlatformRow.tupled((_1.get, _2))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
 
-    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-    val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(100, varying = true), O.Default(None))
+    override val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    override val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(100, varying = true), O.Default(None))
   }
 
   lazy val Platform = new TableQuery(tag => new Platform(tag))
@@ -83,19 +83,19 @@ trait Tables {
     * @param sampleDate Database column sample_date SqlType(date), Default(None)
     * @param actions    Database column actions SqlType(int4), Default(None)
     * @param createDate Database column create_date SqlType(date) */
-  case class SocialMediaUsageSamplesRow(id: Int, agencyid: Int, platformid: Option[Int] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, actions: Option[Int] = None, createDate: Option[java.sql.Date]) extends BaseDAO
+  case class SocialMediaUsageSamplesRow(override val id: Int, agencyid: Int, platformid: Option[Int] = None, url: Option[String] = None, sampleDate: Option[java.sql.Date] = None, actions: Option[Int] = None, createDate: Option[java.sql.Date]) extends DAO
 
   implicit def GetResultSocialMediaUsageSamplesRow(implicit e0: GR[Int], e1: GR[Option[Int]], e2: GR[Option[String]], e3: GR[Option[java.sql.Date]]): GR[SocialMediaUsageSamplesRow] = GR {
     prs => import prs._
       SocialMediaUsageSamplesRow.tupled((<<[Int], <<[Int], <<?[Int], <<?[String], <<?[java.sql.Date], <<?[Int], <<?[java.sql.Date]))
   }
 
-  class SocialMediaUsageSamples(_tableTag: Tag) extends Table[SocialMediaUsageSamplesRow](_tableTag, "social_media_usage_samples") {
+  class SocialMediaUsageSamples(_tableTag: Tag) extends Table[SocialMediaUsageSamplesRow](_tableTag, "social_media_usage_samples") with GenericDataTable[SocialMediaUsageSamplesRow] {
 
     def * = (id, agencyid, platformid, url, sampleDate, actions, createDate) <>(SocialMediaUsageSamplesRow.tupled, SocialMediaUsageSamplesRow.unapply)
     def ? = (Rep.Some(id), Rep.Some(agencyid), platformid, url, sampleDate, actions, createDate).shaped.<>({ r => import r._; _1.map(_ => SocialMediaUsageSamplesRow.tupled((_1.get, _2.get, _3, _4, _5, _6, _7))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
 
-    val id: Rep[Int] = column[Int]("id", O.AutoInc)
+    override val id: Rep[Int] = column[Int]("id", O.AutoInc)
     val agencyid: Rep[Int] = column[Int]("agencyid")
     val platformid: Rep[Option[Int]] = column[Option[Int]]("platformid", O.Default(None))
     val url: Rep[Option[String]] = column[Option[String]]("url", O.Length(500, varying = true), O.Default(None))

@@ -1,18 +1,28 @@
 package app
 
-import service.{PlatformRepository, AgencyRepository}
+import service.{AgencyRepository, MediaUsageRepository, PlatformRepository}
 
 /**
   * Created by ASRagab on 2/23/16.
   */
 object Runner extends App {
 
-  val agency = new AgencyRepository
-  val platform = new PlatformRepository
+  AgencyRepository.getAll.foreach(println)
+  PlatformRepository.getAll.foreach(println)
+  MediaUsageRepository.getAll.foreach(println)
 
-  val agencyRepo = agency.repository
-  agencyRepo.getAll.foreach(println)
+  val array = Array(AgencyRepository getByID 1,
+    PlatformRepository getByID 1,
+    MediaUsageRepository getByID 1,
+    AgencyRepository getByName "DSNY",
+    PlatformRepository getByName "WordPress")
 
-  val platformRepo = platform.repository
-  platformRepo.getAll.foreach(println)
+  val mediaUsages = MediaUsageRepository.getByAgency(5)
+
+  mediaUsages foreach( mu => mu foreach println)
+
+  array foreach {
+    r => println(r getOrElse "not found")
+  }
+
 }

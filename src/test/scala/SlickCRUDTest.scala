@@ -1,5 +1,3 @@
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import org.scalatest.{BeforeAndAfterAll, FunSpecLike}
 import service.RepositoryDBConfig
 
@@ -25,22 +23,11 @@ class SlickCRUDTest extends FunSpecLike with RepositoryDBConfig with BeforeAndAf
 
       describe("Agency Insert Test") {
         it("should insert some rows") {
-          val rows: Seq[AgencyRow] = daoMapper(Seq(AgencyDTO(101, "Dept. of Ballers"), AgencyDTO(102, "Sanitation Now, Sanitation Forever"), AgencyDTO(103, "Shimmer")))
+          val rows: Seq[AgencyRow] = requestMapper(Seq(AgencyDTO(101, "Dept. of Ballers"), AgencyDTO(102, "Sanitation Now, Sanitation Forever"), AgencyDTO(103, "Shimmer")))
           val action = agencies ++= rows
           exec(action)
         }
       }
     }
   }
-
-  def dtoMapper[A, B](action: DBIO[Seq[B]])(implicit rowMapper: B => A): Seq[A] = {
-    val result = exec(action)
-    result.map(rowMapper)
-  }
-
-  def daoMapper[A, B](dtos: Seq[A])(implicit dtoMapper: A => B): Seq[B] = {
-    dtos.map(dtoMapper)
-  }
-
-  def exec[T](action: DBIO[T]): T = Await.result(db.run(action), 4 seconds)
 }

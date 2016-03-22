@@ -3,13 +3,6 @@ import java.sql.Date
 import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
 import service.RepositoryDBConfig
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
-/**
-  * Created by ASRagab on 2/6/16.
-  */
-
 class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig with BeforeAndAfterAll {
 
   override def useH2 = false
@@ -129,33 +122,5 @@ class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig wi
         usage.url shouldNot be(null)
       }
     }
-
-    describe("More complex queries") {
-      //      val mediaUsage = SocialMediaUsageSamples
-      //      val staging = StagingNycSocialMediaUsage
-      //      val agencies = Agency
-      //      val platform = Platform
-      //      it("should run") {
-      //
-      ////        val q = for {
-      ////          usageSample <- mediaUsage if usageSample.sampleDate === staging.map(_.sampleDate).max
-      ////        } yield usageSample
-      //
-      //        val q = mediaUsage join staging on {
-      //          case (usage, row) => usage.sampleDate === staging.map(_.sampleDate).max
-      //        }
-      //
-      //        val action = q.distinct.result
-      //        val results = exec(action)
-      //        results.size should be > 10
-      //      }
-    }
   }
-
-  def resultMapper[A, B](action: DBIO[Seq[B]])(implicit rowMapper: B => A): Seq[A] = {
-    val result = exec(action)
-    result.map(rowMapper)
-  }
-
-  def exec[T](action: DBIO[T]): T = Await.result(db.run(action), 30 seconds)
 }
