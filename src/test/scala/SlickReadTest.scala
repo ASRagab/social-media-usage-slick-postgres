@@ -2,6 +2,8 @@ import java.sql.Date
 
 import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
 import service.RepositoryDBConfig
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig with BeforeAndAfterAll {
 
@@ -19,13 +21,18 @@ class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig wi
     if(useH2) exec(schemaDrop)
   }
 
+  def neverBlockExcept[A](results: Future[Seq[A]]): Seq[A] = {
+    val r = Await.result(results, 20 seconds)
+    r
+  }
+
   describe("Slick Read Tests") {
     describe("Agency Read Tests") {
       val agencies = Agency
 
       it("should select all agencies") {
         val action = agencies.result
-        val list = resultMapper[AgencyDTO, AgencyRow](action)
+        val list = neverBlockExcept(resultMapper[AgencyDTO, AgencyRow](action))
         list.length should equal(75)
       }
 
@@ -40,7 +47,7 @@ class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig wi
         } yield agency
 
         val action = query.result
-        val list = resultMapper[AgencyDTO, AgencyRow](action)
+        val list = neverBlockExcept(resultMapper[AgencyDTO, AgencyRow](action))
         assert(list.length == 1)
         assert(list.head.id == 1)
         assert(list.head.name == "EDC")
@@ -52,7 +59,7 @@ class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig wi
 
       it("should select all platforms") {
         val action = platforms.result
-        val list = resultMapper[PlatformDTO, PlatformRow](action)
+        val list = neverBlockExcept(resultMapper[PlatformDTO, PlatformRow](action))
         list.length should equal(12)
       }
 
@@ -60,7 +67,7 @@ class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig wi
         val action = platforms.filter(_.id === 1).result
 
 
-        val list = resultMapper[PlatformDTO, PlatformRow](action)
+        val list = neverBlockExcept(resultMapper[PlatformDTO, PlatformRow](action))
 
         assert(list.length == 1)
         assert(list.head.id == 1)
@@ -73,14 +80,14 @@ class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig wi
 
       it("should get all max action media usages") {
         val action = maxMediaUsages.result
-        val list = resultMapper[MediaUsageDTO, ViewSmusMaxActionsOnDateRow](action)
+        val list = neverBlockExcept(resultMapper[MediaUsageDTO, ViewSmusMaxActionsOnDateRow](action))
 
         list.length should equal(74)
       }
 
       it("should select one max action media usage") {
         val action = maxMediaUsages.filter(_.name === "Mayor's Office").result
-        val list = resultMapper[MediaUsageDTO, ViewSmusMaxActionsOnDateRow](action)
+        val list = neverBlockExcept(resultMapper[MediaUsageDTO, ViewSmusMaxActionsOnDateRow](action))
 
         assert(list.length == 1)
         assert(list.head.agency != null)
@@ -94,14 +101,14 @@ class SlickReadTest extends FunSpecLike with Matchers with RepositoryDBConfig wi
 
       it("should get all social media usages") {
         val action = mediaUsage.result
-        val list = resultMapper[MediaUsageDTO, SocialMediaUsageSamplesRow](action)
+        val list = neverBlockExcept(resultMapper[MediaUsageDTO, SocialMediaUsageSamplesRow](action))
 
         list.length should equal(3777)
       }
 
       it("should get one social media usage") {
         val action = mediaUsage.filter(_.id === 1).result
-        val list = resultMapper[MediaUsageDTO, SocialMediaUsageSamplesRow](action)
+        val list = neverBlockExcept(resultMapper[MediaUsageDTO, SocialMediaUsageSamplesRow](action))
 
         list.length should equal(1)
         val usage = list.head

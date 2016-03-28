@@ -2,7 +2,9 @@ name := "slick-codegen-postgres"
 
 version := "1.0"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
+
+cancelable in Global := true
 
 libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % "3.1.1",

@@ -1,6 +1,9 @@
 package app
 
 import service.{AgencyRepository, MediaUsageRepository, PlatformRepository}
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import scala.util.{Failure, Success}
 
 /**
   * Created by ASRagab on 2/23/16.
@@ -19,10 +22,16 @@ object Runner extends App {
 
   val mediaUsages = MediaUsageRepository.getByAgency(5)
 
-  mediaUsages foreach( mu => mu foreach println)
-
-  array foreach {
-    r => println(r getOrElse "not found")
+  mediaUsages onComplete {
+    case Success(list) if list.nonEmpty => list foreach println
   }
 
+  array foreach {
+    r => r.onComplete {
+      case Success(list) if list.nonEmpty => println(list.head)
+      case Failure(e) => println(e.getMessage)
+    }
+  }
+
+  Thread.sleep(1000)
 }
